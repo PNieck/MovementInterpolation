@@ -44,7 +44,6 @@ GLFWwindow * Window::CreateGFLWwindow(int width, int height, const std::string &
     InitializeGlad();
 
     // Set callbacks
-    glfwSetFramebufferSizeCallback(window, SizeChangedCallback);
     glfwSetCursorPosCallback(window, MouseMoveCallback);
     glfwSetMouseButtonCallback(window, MouseButtonCallback);
     glfwSetScrollCallback(window, ScrollCallback);
@@ -94,13 +93,6 @@ void Window::RunMessageLoop()
 
         glfwSwapBuffers(window);
     }
-}
-
-
-void Window::SizeChangedCallback(GLFWwindow *glfwWindow, const int width, const int height)
-{
-    auto* window = static_cast<Window *>(glfwGetWindowUserPointer(glfwWindow));
-    window->controller.SizeChanged(width, height);
 }
 
 

@@ -36,9 +36,6 @@ public:
 
     void Render();
 
-    void SizeChanged(const int width, const int height)
-        { visualization.ResizeWindow(width, height); }
-
     void MouseClicked(const MouseButton button)
         { mouseState.ButtonClicked(button); }
 
@@ -53,7 +50,11 @@ private:
 
     DockingSpace dockingSpace;
     OptionsPanel optionsPanel;
-    Visualization visualization;
+    Visualization visualizationQuat;
+    Visualization visualizationEuler;
 
     Model model;
+
+    [[nodiscard]]
+    bool WantToCaptureMouse() const;
 };

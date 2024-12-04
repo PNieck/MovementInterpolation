@@ -5,6 +5,7 @@
 #include "visualization/renderObject.hpp"
 #include "visualization/shaders/stdShader.hpp"
 #include "visualization/mesh.hpp"
+#include "visualization/framebuffer.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
@@ -12,13 +13,11 @@
 
 class Visualization {
 public:
-    Visualization(int xResolution, int yResolution);
+    Visualization(const char* windowName, int xResolution, int yResolution);
 
     void Update(const glm::quat& q);
 
-    void Render() const;
-
-    void ResizeWindow(int width, int height);
+    void Render();
 
     void RotateCamera(float x, float y);
 
@@ -33,9 +32,18 @@ public:
     static const char* WindowName()
         { return "Visualization options"; }
 
+    [[nodiscard]]
+    bool IsMouseOverWindow() const
+        { return mouseIsOver; }
+
 private:
+    const char* windowName;
+    bool mouseIsOver = false;
+
     Camera camera;
     Grid grid;
+
+    Framebuffer framebuffer;
 
     StdShader shader;
 };
