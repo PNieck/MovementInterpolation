@@ -6,7 +6,9 @@
 
 
 MainController::MainController(GLFWwindow *window):
-    optionsPanel(*this), visualization(500, 600)
+    optionsPanel(*this),
+    visualizationQuat(QuaternionVisualizationWindowName(), 800, 600),
+    visualizationEuler(EulerVisualizationWindowName(), 800, 600)
 {
     const auto glsl_version = "#version 410";
     IMGUI_CHECKVERSION();
@@ -35,17 +37,7 @@ MainController::~MainController()
 
 void MainController::Update()
 {
-    // const auto q = model.GetCubeRotation();
-    // visualization.Update(q);
 }
-
-
-// void MainController::SetProperties(const SimulationProperties &properties)
-// {
-//     model.SetProperties(properties);
-//     visualization.SetCubeEdgeLen(properties.cubeEdgeLen);
-//     visualization.ResetTrace();
-// }
 
 
 void MainController::Render()
@@ -57,7 +49,8 @@ void MainController::Render()
 
     dockingSpace.Render();
     optionsPanel.Render();
-    visualization.Render();
+    visualizationQuat.Render();
+    visualizationEuler.Render();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -68,21 +61,24 @@ void MainController::MouseMoved(const int x, const int y)
 {
     mouseState.Moved(x, y);
 
-    if (ImGui::GetIO().WantCaptureMouse)
+    if (WantToCaptureMouse())
         return;
 
     if (mouseState.IsButtonClicked(MouseButton::Middle)) {
         const auto offset = mouseState.TranslationGet();
-        visualization.RotateCamera(
+        visualizationQuat.RotateCamera(
             offset.x * 0.02f, offset.y * 0.02f
         );
+
+        const auto camPos = visualizationQuat.GetCameraPosition();
+        visualizationEuler.SetCameraPosition(camPos);
     }
 }
 
 
 void MainController::ScrollMoved(const int offset)
 {
-    if (ImGui::GetIO().WantCaptureMouse)
+    if (WantToCaptureMouse())
         return;
 
     float val = offset * 0.7f;
@@ -91,6 +87,15 @@ void MainController::ScrollMoved(const int offset)
         val = -1.0f / val;
     }
 
-    const auto camPos = visualization.GetCameraPosition();
-    visualization.SetCameraPosition(camPos * val);
+    const auto camPos = visualizationQuat.GetCameraPosition();
+
+    auto newCamPos = camPos * val;
+    visualizationQuat.SetCameraPosition(newCamPos);
+    visualizationEuler.SetCameraPosition(newCamPos);
+}
+
+
+bool MainController::WantToCaptureMouse() const
+{
+    return !(visualizationEuler.IsMouseOverWindow() || visualizationQuat.IsMouseOverWindow());
 }

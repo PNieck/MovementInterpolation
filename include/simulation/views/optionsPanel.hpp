@@ -9,9 +9,11 @@ public:
 
     void Render();
 
+    static const char* WindowName()
+        { return "Options"; }
+
 private:
     MainController& controller;
 
     void RenderStartStopButton(bool simRuns);
-    void RenderProperties(bool simRuns);
 };

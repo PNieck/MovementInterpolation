@@ -2,19 +2,24 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <numbers>
+
 #include "imgui.h"
 
 
-Visualization::Visualization(const int xResolution, const int yResolution):
+Visualization::Visualization(const char* windowName, int xResolution, int yResolution):
+    windowName(windowName),
     camera({
         .target = glm::vec3(0.f),
         .viewportWidth = xResolution,
         .viewportHeight = yResolution,
         .fov = std::numbers::pi_v<float> / 4.f,
-        .nearPlane = 0.1f,
+        .nearPlane = 0.5f,
         .farPlane = 100.0f,
-    })
+    }),
+    framebuffer(xResolution, yResolution)
 {
+    glViewport(0, 0, xResolution, yResolution);
 }
 
 
@@ -23,7 +28,7 @@ void Visualization::Update(const glm::quat& q)
 }
 
 
-void Visualization::Render() const
+void Visualization::Render()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -32,14 +37,19 @@ void Visualization::Render() const
 
     const auto cameraMtx = projection * view;
 
+    ImGui::Begin(windowName);
+
+    mouseIsOver = ImGui::IsWindowHovered();
+
+    framebuffer.Use();
+    glClear(GL_COLOR_BUFFER_BIT);
     grid.Render(view, projection);
-}
+    Framebuffer::UseDefault();
 
-
-void Visualization::ResizeWindow(const int width, const int height)
-{
-    glViewport(0, 0, width, height);
-    camera.SetViewportSize(width, height);
+    const uint64_t textureID = framebuffer.GetColorTextureId();
+    const ImVec2 size = ImGui::GetContentRegionAvail();
+    ImGui::Image(textureID, ImVec2{ size.x, size.y });
+    ImGui::End();
 }
 
 
