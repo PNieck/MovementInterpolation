@@ -7,8 +7,8 @@
 
 MainController::MainController(GLFWwindow *window):
     optionsPanel(*this),
-    visualizationQuat("Quaternion interpolation", 800, 600),
-    visualizationEuler("Euler angles interpolation", 800, 600)
+    visualizationQuat(QuaternionVisualizationWindowName(), 800, 600),
+    visualizationEuler(EulerVisualizationWindowName(), 800, 600)
 {
     const auto glsl_version = "#version 410";
     IMGUI_CHECKVERSION();
@@ -51,8 +51,6 @@ void MainController::Render()
     optionsPanel.Render();
     visualizationQuat.Render();
     visualizationEuler.Render();
-
-    ImGui::ShowDemoWindow();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

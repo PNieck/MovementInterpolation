@@ -13,12 +13,11 @@ OptionsPanel::OptionsPanel(MainController &controller):
 
 void OptionsPanel::Render()
 {
-    ImGui::Begin("Options");
+    ImGui::Begin(WindowName());
 
     const bool simRuns = controller.SimulationIsRunning();
 
     RenderStartStopButton(simRuns);
-    //RenderProperties(simRuns);
 
     ImGui::End();
 }

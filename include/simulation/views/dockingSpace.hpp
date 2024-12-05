@@ -3,6 +3,9 @@
 #include <imgui.h>
 
 
+class MainController;
+
+
 class DockingSpace {
 public:
     DockingSpace();

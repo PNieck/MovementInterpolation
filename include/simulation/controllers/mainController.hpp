@@ -28,8 +28,6 @@ public:
     void UpdateSimulation()
         {  }
 
-    //void SetProperties(const SimulationProperties& properties);
-
     [[nodiscard]]
     bool SimulationIsRunning() const
         { return true; }
@@ -44,6 +42,12 @@ public:
 
     void MouseMoved(int x, int y);
     void ScrollMoved(int offset);
+
+    static const char* QuaternionVisualizationWindowName()
+        { return "Quaternion interpolation"; }
+
+    static const char* EulerVisualizationWindowName()
+        { return "Euler angles interpolation"; }
 
 private:
     MouseState mouseState;

@@ -2,7 +2,8 @@
 
 #include "imgui_internal.h"
 
-#include "simulation/views/visualization.hpp"
+#include "simulation/controllers/mainController.hpp"
+#include "simulation/views/optionsPanel.hpp""
 
 
 DockingSpace::DockingSpace()
@@ -35,23 +36,27 @@ void DockingSpace::Render() const
     ImGuiIO &io = ImGui::GetIO();
     if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
     {
-        ImGuiID DockSpaceId = ImGui::GetID("MyDockSpace");
-        ImGui::DockSpace(DockSpaceId, ImVec2(0.0f, 0.0f), dockNodeFlags);
+        ImGuiID dockSpaceId = ImGui::GetID("MyDockSpace");
+        ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), dockNodeFlags);
 
         static auto first_time = true;
         if (first_time)
         {
             first_time = false;
 
-            ImGui::DockBuilderRemoveNode(DockSpaceId); // clear any previous layout
-            ImGui::DockBuilderAddNode(DockSpaceId, dockNodeFlags | ImGuiDockNodeFlags_DockSpace);
-            ImGui::DockBuilderSetNodeSize(DockSpaceId, viewport->Size);
+            ImGui::DockBuilderRemoveNode(dockSpaceId); // clear any previous layout
+            ImGui::DockBuilderAddNode(dockSpaceId, dockNodeFlags | ImGuiDockNodeFlags_DockSpace);
+            ImGui::DockBuilderSetNodeSize(dockSpaceId, viewport->Size);
 
-            auto rightDockId = ImGui::DockBuilderSplitNode(DockSpaceId, ImGuiDir_Right, 0.25f, nullptr, &DockSpaceId);
-            const auto rightDownDockId = ImGui::DockBuilderSplitNode(rightDockId, ImGuiDir_Down, 0.75f, nullptr, &rightDockId);
-            ImGui::DockBuilderDockWindow("Options", rightDockId);
-            ImGui::DockBuilderDockWindow(Visualization::WindowName(), rightDownDockId);
-            ImGui::DockBuilderFinish(DockSpaceId);
+            const auto rightDockId = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Right, 0.25f, nullptr, &dockSpaceId);
+
+            const auto leftDownId = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.5f, nullptr, &dockSpaceId);
+
+            ImGui::DockBuilderDockWindow(OptionsPanel::WindowName(), rightDockId);
+            ImGui::DockBuilderDockWindow(MainController::QuaternionVisualizationWindowName(), leftDownId);
+            ImGui::DockBuilderDockWindow(MainController::EulerVisualizationWindowName(), dockSpaceId);
+
+            ImGui::DockBuilderFinish(dockSpaceId);
         }
     }
 
