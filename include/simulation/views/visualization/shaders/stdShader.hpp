@@ -11,12 +11,12 @@ public:
             "../../shaders/stdShader.frag"
         ) {}
 
-    inline void SetColor(const glm::vec4& color) const
+    void SetColor(const glm::vec4& color) const
         { SetVec4("color", color); }
 
-    inline void SetMVP(const glm::mat4& matrix) const
+    void SetMVP(const glm::mat4& matrix) const
         { SetMatrix4("MVP", matrix); }
 
-    inline void Use() const
+    void Use() const
         { Shader::Use(); }
 };

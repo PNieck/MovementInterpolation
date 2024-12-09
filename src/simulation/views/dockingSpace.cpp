@@ -3,7 +3,7 @@
 #include "imgui_internal.h"
 
 #include "simulation/controllers/mainController.hpp"
-#include "simulation/views/optionsPanel.hpp""
+#include "simulation/views/optionsPanel.hpp"
 
 
 DockingSpace::DockingSpace()
