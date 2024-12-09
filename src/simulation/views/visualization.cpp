@@ -61,7 +61,7 @@ void Visualization::Render()
 
     const uint64_t textureID = framebuffer.GetColorTextureId();
     const ImVec2 size = ImGui::GetContentRegionAvail();
-    ImGui::Image(textureID, ImVec2{ size.x, size.y });
+    ImGui::Image(textureID, ImVec2{ size.x, size.y }, ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
     ImGui::End();
 }
 
