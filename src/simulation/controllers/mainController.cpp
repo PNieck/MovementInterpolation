@@ -7,8 +7,8 @@
 
 MainController::MainController(GLFWwindow *window):
     optionsPanel(*this),
-    visualizationQuat(QuaternionVisualizationWindowName(), 800, 600),
-    visualizationEuler(EulerVisualizationWindowName(), 800, 600)
+    visualizationQuat(QuaternionVisualizationWindowName(), 1280, 720),
+    visualizationEuler(EulerVisualizationWindowName(), 1280, 720)
 {
     const auto glsl_version = "#version 410";
     IMGUI_CHECKVERSION();
