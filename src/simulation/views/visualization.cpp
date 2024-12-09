@@ -4,10 +4,12 @@
 
 #include <numbers>
 
+#include <simulation/views/visualization/meshLoader.hpp>
+
 #include "imgui.h"
 
 
-Visualization::Visualization(const char* windowName, int xResolution, int yResolution):
+Visualization::Visualization(const char* windowName, const int xResolution, const int yResolution):
     windowName(windowName),
     camera({
         .target = glm::vec3(0.f),
@@ -20,11 +22,9 @@ Visualization::Visualization(const char* windowName, int xResolution, int yResol
     framebuffer(xResolution, yResolution)
 {
     glViewport(0, 0, xResolution, yResolution);
-}
 
-
-void Visualization::Update(const glm::quat& q)
-{
+    const auto data = MeshLoader::LoadWithNormals("../../models/arrow.obj");
+    arrow.Update(std::get<0>(data), std::get<1>(data));
 }
 
 
@@ -35,15 +35,28 @@ void Visualization::Render()
     const auto view = camera.ViewMatrix();
     const auto projection = camera.ProjectionMatrix();
 
-    const auto cameraMtx = projection * view;
-
     ImGui::Begin(windowName);
 
     mouseIsOver = ImGui::IsWindowHovered();
 
     framebuffer.Use();
-    glClear(GL_COLOR_BUFFER_BIT);
-    grid.Render(view, projection);
+
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //grid.Render(view, projection);
+
+    phongShader.Use();
+    phongShader.SetColor(glm::vec4(1.0f, 0.f, 0.f, 1.f));
+    phongShader.SetCameraPosition(camera.GetPosition());
+    phongShader.SetLightPosition(glm::vec3(10.0f, 10.f, 10.f));
+    phongShader.SetProjectionMatrix(projection);
+    phongShader.SetViewMatrix(view);
+    phongShader.SetModelMatrix(glm::mat4(1.f));
+    phongShader.SetModelMatrixInverse(glm::mat4(1.f));
+
+    arrow.Use();
+    glDrawElements(GL_TRIANGLES, arrow.GetElementsCnt(), GL_UNSIGNED_INT, nullptr);
+
     Framebuffer::UseDefault();
 
     const uint64_t textureID = framebuffer.GetColorTextureId();
@@ -57,14 +70,7 @@ void Visualization::RotateCamera(const float x, const float y)
 {
     const auto oldPos = camera.GetPosition();
 
-    auto rotation = glm::mat4(
-        1.f, 0.f, 0.f, 0.f,
-        0.f, 1.f, 0.f, 0.f,
-        0.f, 0.f, 1.f, 0.f,
-        0.f, 0.f, 0.f, 1.f
-    );
-
-    rotation = glm::rotate(rotation, x, glm::vec3(0.f, 1.f, 0.f));
+    auto rotation = glm::rotate(glm::mat4(1.f), x, glm::vec3(0.f, 1.f, 0.f));
 
     const auto axis = glm::cross(oldPos, glm::vec3(0.f, 1.f, 0.f));
     rotation = glm::rotate(rotation, y, axis);

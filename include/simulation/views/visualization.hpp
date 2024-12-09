@@ -2,9 +2,9 @@
 
 #include "visualization/camera.hpp"
 #include "visualization/grid.hpp"
-#include "visualization/renderObject.hpp"
 #include "visualization/shaders/stdShader.hpp"
-#include "visualization/mesh.hpp"
+#include "visualization/shaders/phongShader.hpp"
+#include "visualization/meshWithNormals.hpp"
 #include "visualization/framebuffer.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -14,8 +14,6 @@
 class Visualization {
 public:
     Visualization(const char* windowName, int xResolution, int yResolution);
-
-    void Update(const glm::quat& q);
 
     void Render();
 
@@ -43,7 +41,10 @@ private:
     Camera camera;
     Grid grid;
 
+    MeshWithNormals arrow;
+
     Framebuffer framebuffer;
 
     StdShader shader;
+    PhongShader phongShader;
 };
