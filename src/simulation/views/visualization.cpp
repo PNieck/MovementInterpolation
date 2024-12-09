@@ -43,7 +43,6 @@ void Visualization::Render()
 
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //grid.Render(view, projection);
 
     phongShader.Use();
     phongShader.SetColor(glm::vec4(1.0f, 0.f, 0.f, 1.f));
@@ -56,6 +55,10 @@ void Visualization::Render()
 
     arrow.Use();
     glDrawElements(GL_TRIANGLES, arrow.GetElementsCnt(), GL_UNSIGNED_INT, nullptr);
+
+    glEnable(GL_BLEND);
+    const auto camParams = camera.GetParameters();
+    grid.Render(view, projection, camParams.nearPlane, camParams.farPlane);
 
     Framebuffer::UseDefault();
 

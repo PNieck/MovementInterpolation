@@ -21,7 +21,7 @@ public:
         { SetMatrix4("view", viewMtx); }
 
     void SetProjectionMatrix(const glm::mat4& projMtx) const
-        { SetMatrix4("proj", projMtx); }
+        { SetMatrix4("projection", projMtx); }
 
     void Use() const
         { Shader::Use(); }
