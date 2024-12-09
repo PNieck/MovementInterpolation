@@ -6,7 +6,7 @@ file(GLOB_RECURSE SOURCE_LIST CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/src/simul
 
 add_library(simulation_lib ${SOURCE_LIST} ${HEADER_LIST})
 target_include_directories(simulation_lib PUBLIC ../include)
-target_link_libraries(simulation_lib PUBLIC glfw glad imgui glm)
+target_link_libraries(simulation_lib PUBLIC glfw glad imgui glm assimp)
 enable_compiler_warnings(simulation_lib)
 
 # Copy shaders
