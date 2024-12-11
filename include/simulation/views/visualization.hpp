@@ -17,7 +17,7 @@ class Visualization {
 public:
     Visualization(const char* windowName, int xResolution, int yResolution);
 
-    void Render(const Frame& start, const Frame& end, const Frame& actual);
+    void Render(const std::vector<Frame>& frames);
 
     void RotateCamera(float x, float y);
 

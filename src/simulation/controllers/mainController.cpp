@@ -4,13 +4,12 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
-#include <glm/gtx/euler_angles.hpp>
-
 
 MainController::MainController(GLFWwindow *window):
     optionsPanel(*this),
     visualizationQuat(QuaternionVisualizationWindowName(), 1280, 720),
-    visualizationEuler(EulerVisualizationWindowName(), 1280, 720)
+    visualizationEuler(EulerVisualizationWindowName(), 1280, 720),
+    interpolationInterval(1.f)
 {
     const auto glsl_version = "#version 410";
     IMGUI_CHECKVERSION();
@@ -39,6 +38,16 @@ MainController::~MainController()
 
 void MainController::Update()
 {
+    if (simulationStarted) {
+        actualTime = std::chrono::high_resolution_clock::now();
+    }
+}
+
+
+void MainController::StartSimulation() {
+    startTime = std::chrono::high_resolution_clock::now();
+
+    simulationStarted = true;
 }
 
 
@@ -52,19 +61,25 @@ void MainController::Render()
     dockingSpace.Render();
     optionsPanel.Render();
 
-    const auto& startPos = GetStartingPosition();
-    const auto& endPos = GetEndingPosition();
+    std::vector<Frame> frames {
+        { GetStartingPosition(), GetStartingOrientationQuaternion() },
+        { GetEndingPosition(), GetEndingOrientationQuaternion() }
+    };
 
-    Frame startFrame = { .position = startPos, .orientation = mat4_cast(GetStartingOrientationQuaternion()) };
-    Frame endFrame = { .position = endPos, .orientation = mat4_cast(GetEndingOrientationQuaternion()) };
+    const auto actFrames = ActualFrame();
 
-    visualizationQuat.Render(startFrame, endFrame, startFrame);
+    if (actFrames.has_value())
+        frames.push_back(actFrames.value().QuatInter);
 
-    auto const& euler = GetStartingOrientationEulerAngles();
-    startFrame.orientation = glm::eulerAngleZ(euler.z) * glm::eulerAngleY(euler.y) * glm::eulerAngleX(euler.x);
-    endFrame.orientation = orientate4(GetEndingOrientationEulerAngles());
+    visualizationQuat.Render(frames);
 
-    visualizationEuler.Render(startFrame, endFrame, startFrame);
+    frames[0].SetOrientation(GetStartingOrientationEulerAngles());
+    frames[1].SetOrientation(GetEndingOrientationEulerAngles());
+
+    if (actFrames.has_value())
+        frames[2] = actFrames.value().EulerInter;
+
+    visualizationEuler.Render(frames);
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -103,7 +118,7 @@ void MainController::ScrollMoved(const int offset)
 
     const auto camPos = visualizationQuat.GetCameraPosition();
 
-    auto newCamPos = camPos * val;
+    const auto newCamPos = camPos * val;
     visualizationQuat.SetCameraPosition(newCamPos);
     visualizationEuler.SetCameraPosition(newCamPos);
 }
@@ -144,4 +159,21 @@ void MainController::SetEndingOrientation(const glm::vec3 &orientation) {
 bool MainController::WantToCaptureMouse() const
 {
     return !(visualizationEuler.IsMouseOverWindow() || visualizationQuat.IsMouseOverWindow());
+}
+
+
+std::optional<MainController::Frames> MainController::ActualFrame() {
+    if (!SimulationIsRunning())
+        return std::nullopt;
+
+    const float t = (std::chrono::high_resolution_clock::now() - startTime) / interpolationInterval;
+    if (t > 1.f)
+        StopSimulation();
+
+    const auto pos = positionInterpolator.Interpolate(t);
+
+    return Frames {
+        .QuatInter = Frame(pos, quaternionInterpolator.Interpolate(t)),
+        .EulerInter = Frame(pos, eulerAnglesInterpolator.Interpolate(t))
+    };
 }

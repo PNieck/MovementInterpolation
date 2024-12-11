@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include "mouseState.hpp"
 
 #define GLFW_INCLUDE_NONE
@@ -21,18 +23,14 @@ public:
 
     void Update();
 
-    void StartSimulation()
-        {  }
+    void StartSimulation();
 
     void StopSimulation()
-        {  }
-
-    void UpdateSimulation()
-        {  }
+        { simulationStarted = false; }
 
     [[nodiscard]]
     bool SimulationIsRunning() const
-        { return false; }
+        { return simulationStarted; }
 
     void Render();
 
@@ -87,6 +85,13 @@ public:
     const glm::vec3& GetEndingOrientationEulerAngles() const
         { return eulerAnglesInterpolator.GetEndAngles(); }
 
+    [[nodiscard]]
+    auto GetInterpolationTIme() const
+        { return interpolationInterval;; }
+
+    void SetInterpolationTime(const float time)
+        { interpolationInterval = std::chrono::duration<float>(time); }
+
 private:
     MouseState mouseState;
 
@@ -99,9 +104,20 @@ private:
     QuaternionInterpolator quaternionInterpolator;
     EulerAnglesInterpolator eulerAnglesInterpolator;
 
-    std::vector<glm::vec3> positions;
-    std::vector<glm::mat4> rotations;
+    std::chrono::duration<float> interpolationInterval;
+    std::chrono::time_point<std::chrono::steady_clock> startTime;
+    std::chrono::time_point<std::chrono::steady_clock> actualTime;
+
+    bool simulationStarted = false;
 
     [[nodiscard]]
     bool WantToCaptureMouse() const;
+
+    struct Frames {
+        Frame QuatInter;
+        Frame EulerInter;
+    };
+
+    [[nodiscard]]
+    std::optional<Frames> ActualFrame();
 };

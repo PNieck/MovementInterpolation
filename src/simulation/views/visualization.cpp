@@ -30,7 +30,7 @@ Visualization::Visualization(const char* windowName, const int xResolution, cons
 }
 
 
-void Visualization::Render(const Frame& start, const Frame& end, const Frame& actual)
+void Visualization::Render(const std::vector<Frame>& frames)
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -46,8 +46,9 @@ void Visualization::Render(const Frame& start, const Frame& end, const Frame& ac
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    RenderFrame(start, view, projection);
-    RenderFrame(end, view, projection);
+    for (const auto& frame : frames) {
+        RenderFrame(frame, view, projection);
+    }
 
     glEnable(GL_BLEND);
     const auto camParams = camera.GetParameters();

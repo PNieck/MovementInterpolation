@@ -11,8 +11,7 @@ OptionsPanel::OptionsPanel(MainController &controller):
 }
 
 
-void OptionsPanel::Render()
-{
+void OptionsPanel::Render() const {
     ImGui::Begin(WindowName());
 
     const bool simRuns = controller.SimulationIsRunning();
@@ -20,13 +19,13 @@ void OptionsPanel::Render()
     RenderStartStopButton(simRuns);
     RenderStartFrameOptions(simRuns);
     RenderEndFrameOptions(simRuns);
+    RenderInterpolationOptions(simRuns);
 
     ImGui::End();
 }
 
 
-void OptionsPanel::RenderStartStopButton(const bool simRuns)
-{
+void OptionsPanel::RenderStartStopButton(const bool simRuns) const {
     ImGui::BeginDisabled(simRuns);
 
     ImGui::SeparatorText("Simulation");
@@ -45,10 +44,6 @@ void OptionsPanel::RenderStartStopButton(const bool simRuns)
     ImGui::EndDisabled();
 
     ImGui::BeginDisabled(simRuns);
-    if (ImGui::Button("Update")) {
-        controller.UpdateSimulation();
-    }
-
     if (ImGui::Button("Reset")) {
         constexpr auto zeroVector = glm::vec3(0.f);
 
@@ -140,12 +135,30 @@ void OptionsPanel::RenderEndFrameOptions(const bool simRuns) const {
     coordinates[2] = quaternion.y;
     coordinates[3] = quaternion.z;
 
-    ImGui::Text("Quaternion (WXYZ");
+    ImGui::Text("Quaternion (WXYZ)");
     if (ImGui::DragFloat4("##EndQuaternion", coordinates, 0.01f)) {
         quaternion = { coordinates[0], coordinates[1], coordinates[2], coordinates[3] };
         quaternion = normalize(quaternion);
 
         controller.SetEndingOrientation(quaternion);
+    }
+
+    ImGui::EndDisabled();
+}
+
+
+void OptionsPanel::RenderInterpolationOptions(const bool simRuns) const {
+    using sec = std::chrono::seconds;
+
+    ImGui::SeparatorText("Interpolation options");
+
+    ImGui::BeginDisabled(simRuns);
+
+    float interpolationTime = controller.GetInterpolationTIme().count();
+
+    ImGui::Text("Interpolation time (s)");
+    if (ImGui::DragFloat("##InterpolationTime", &interpolationTime, 0.01f)) {
+        controller.SetInterpolationTime(interpolationTime);
     }
 
     ImGui::EndDisabled();
