@@ -12,7 +12,8 @@ std::tuple<std::vector<float>, std::vector<uint32_t>> MeshLoader::LoadWithNormal
 {
     Assimp::Importer importer;
 
-    const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_GenSmoothNormals);
+    constexpr auto readFlag = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices;
+    const aiScene* scene = importer.ReadFile(filepath, readFlag);
     if (scene == nullptr || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         throw std::runtime_error("Failed to load model");
     }
@@ -33,7 +34,7 @@ std::tuple<std::vector<float>, std::vector<uint32_t>> MeshLoader::LoadWithNormal
             assimpMesh->mNormals[i].z
         );
 
-        normal = glm::normalize(normal);
+        normal = normalize(normal);
 
         vertices.push_back(normal.x);
         vertices.push_back(normal.y);
