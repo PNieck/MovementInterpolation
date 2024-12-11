@@ -3,10 +3,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <numbers>
+#include <ranges>
 
 #include <simulation/views/visualization/meshLoader.hpp>
 
 #include "imgui.h"
+#include <glm/gtx/euler_angles.hpp>
 
 
 Visualization::Visualization(const char* windowName, const int xResolution, const int yResolution):
@@ -24,11 +26,11 @@ Visualization::Visualization(const char* windowName, const int xResolution, cons
     glViewport(0, 0, xResolution, yResolution);
 
     const auto data = MeshLoader::LoadWithNormals("../../models/arrow.obj");
-    arrow.Update(std::get<0>(data), std::get<1>(data));
+    arrow.UpdateMesh(std::get<0>(data), std::get<1>(data));
 }
 
 
-void Visualization::Render()
+void Visualization::Render(const Frame& start, const Frame& end, const Frame& actual)
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -44,17 +46,8 @@ void Visualization::Render()
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    phongShader.Use();
-    phongShader.SetColor(glm::vec4(1.0f, 0.f, 0.f, 1.f));
-    phongShader.SetCameraPosition(camera.GetPosition());
-    phongShader.SetLightPosition(glm::vec3(10.0f, 10.f, 10.f));
-    phongShader.SetProjectionMatrix(projection);
-    phongShader.SetViewMatrix(view);
-    phongShader.SetModelMatrix(glm::mat4(1.f));
-    phongShader.SetModelMatrixInverse(glm::mat4(1.f));
-
-    arrow.Use();
-    glDrawElements(GL_TRIANGLES, arrow.GetElementsCnt(), GL_UNSIGNED_INT, nullptr);
+    RenderFrame(start, view, projection);
+    RenderFrame(end, view, projection);
 
     glEnable(GL_BLEND);
     const auto camParams = camera.GetParameters();
@@ -80,4 +73,26 @@ void Visualization::RotateCamera(const float x, const float y)
 
     const auto newPos = rotation * glm::vec4(oldPos, 1.f);
     camera.SetPosition(glm::vec3(newPos.x, newPos.y, newPos.z));
+}
+
+
+void Visualization::RenderFrame(const Frame& frame, const glm::mat4& view, const glm::mat4& projection) {
+    phongShader.Use();
+    phongShader.SetCameraPosition(camera.GetPosition());
+    phongShader.SetLightPosition(glm::vec3(10.0f, 10.f, 10.f));
+    phongShader.SetProjectionMatrix(projection);
+    phongShader.SetViewMatrix(view);
+
+    arrow.SetPosition(frame.position);
+    arrow.SetRotation(frame.orientation);
+    arrow.SetColor(green);
+    arrow.Render(phongShader);
+
+    arrow.SetRotation(frame.orientation * glm::eulerAngleX(glm::half_pi<float>()));
+    arrow.SetColor(red);
+    arrow.Render(phongShader);
+
+    arrow.SetRotation(frame.orientation * glm::eulerAngleZ(glm::half_pi<float>()));
+    arrow.SetColor(blue);
+    arrow.Render(phongShader);
 }

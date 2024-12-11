@@ -16,4 +16,6 @@ private:
     MainController& controller;
 
     void RenderStartStopButton(bool simRuns);
+    void RenderStartFrameOptions(bool simRuns) const;
+    void RenderEndFrameOptions(bool simRuns) const;
 };

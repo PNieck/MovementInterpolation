@@ -18,6 +18,8 @@ void OptionsPanel::Render()
     const bool simRuns = controller.SimulationIsRunning();
 
     RenderStartStopButton(simRuns);
+    RenderStartFrameOptions(simRuns);
+    RenderEndFrameOptions(simRuns);
 
     ImGui::End();
 }
@@ -26,6 +28,9 @@ void OptionsPanel::Render()
 void OptionsPanel::RenderStartStopButton(const bool simRuns)
 {
     ImGui::BeginDisabled(simRuns);
+
+    ImGui::SeparatorText("Simulation");
+
     if (ImGui::Button("Start")) {
         controller.StartSimulation();
     }
@@ -45,7 +50,103 @@ void OptionsPanel::RenderStartStopButton(const bool simRuns)
     }
 
     if (ImGui::Button("Reset")) {
-        //controller.SetProperties(properties);
+        constexpr auto zeroVector = glm::vec3(0.f);
+
+        controller.SetStartingOrientation(zeroVector);
+        controller.SetStartingPosition(zeroVector);
+
+        controller.SetEndingOrientation(zeroVector);
+        controller.SetEndingPosition(zeroVector);
     }
+    ImGui::EndDisabled();
+}
+
+
+void OptionsPanel::RenderStartFrameOptions(const bool simRuns) const {
+    ImGui::SeparatorText("Start frame");
+
+    const glm::vec3& startPos = controller.GetStartingPosition();
+    float coordinates[4] = { startPos.x, startPos.y, startPos.z };
+
+    ImGui::BeginDisabled(simRuns);
+
+    ImGui::Text("Position");
+    if (ImGui::DragFloat3("##StartPosition", coordinates, 0.01f)) {
+        controller.SetStartingPosition(
+            glm::vec3(coordinates[0], coordinates[1], coordinates[2])
+        );
+    }
+
+    const glm::vec3& eulerAngles = controller.GetStartingOrientationEulerAngles();
+    coordinates[0] = eulerAngles.x;
+    coordinates[1] = eulerAngles.y;
+    coordinates[2] = eulerAngles.z;
+
+    ImGui::Text("Euler angles (XYZ)");
+    if (ImGui::DragFloat3("##StartEulerAngles", coordinates, 0.01f)) {
+        controller.SetStartingOrientation(
+            glm::vec3(coordinates[0], coordinates[1], coordinates[2])
+        );
+    }
+
+    glm::quat quaternion = controller.GetStartingOrientationQuaternion();
+    coordinates[0] = quaternion.w;
+    coordinates[1] = quaternion.x;
+    coordinates[2] = quaternion.y;
+    coordinates[3] = quaternion.z;
+
+    ImGui::Text("Quaternion (WXYZ");
+    if (ImGui::DragFloat4("##StartQuaternion", coordinates, 0.01f)) {
+        quaternion = { coordinates[0], coordinates[1], coordinates[2], coordinates[3] };
+        quaternion = normalize(quaternion);
+
+        controller.SetStartingOrientation(quaternion);
+    }
+
+    ImGui::EndDisabled();
+}
+
+
+void OptionsPanel::RenderEndFrameOptions(const bool simRuns) const {
+    ImGui::SeparatorText("End frame");
+
+    const glm::vec3& startPos = controller.GetEndingPosition();
+    float coordinates[4] = { startPos.x, startPos.y, startPos.z };
+
+    ImGui::BeginDisabled(simRuns);
+
+    ImGui::Text("Position");
+    if (ImGui::DragFloat3("##EndPosition", coordinates, 0.01f)) {
+        controller.SetEndingPosition(
+            glm::vec3(coordinates[0], coordinates[1], coordinates[2])
+        );
+    }
+
+    const glm::vec3& eulerAngles = controller.GetEndingOrientationEulerAngles();
+    coordinates[0] = eulerAngles.x;
+    coordinates[1] = eulerAngles.y;
+    coordinates[2] = eulerAngles.z;
+
+    ImGui::Text("Euler angles (XYZ)");
+    if (ImGui::DragFloat3("##EndEulerAngles", coordinates, 0.01f)) {
+        controller.SetEndingOrientation(
+            glm::vec3(coordinates[0], coordinates[1], coordinates[2])
+        );
+    }
+
+    glm::quat quaternion = controller.GetEndingOrientationQuaternion();
+    coordinates[0] = quaternion.w;
+    coordinates[1] = quaternion.x;
+    coordinates[2] = quaternion.y;
+    coordinates[3] = quaternion.z;
+
+    ImGui::Text("Quaternion (WXYZ");
+    if (ImGui::DragFloat4("##EndQuaternion", coordinates, 0.01f)) {
+        quaternion = { coordinates[0], coordinates[1], coordinates[2], coordinates[3] };
+        quaternion = normalize(quaternion);
+
+        controller.SetEndingOrientation(quaternion);
+    }
+
     ImGui::EndDisabled();
 }

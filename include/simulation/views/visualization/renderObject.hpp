@@ -1,6 +1,9 @@
 #pragma once
 
-#include "mesh.hpp"
+#include "meshWithNormals.hpp"
+
+#include "shaders/phongShader.hpp"
+
 #include "glm/mat4x4.hpp"
 #include "glm/vec4.hpp"
 
@@ -11,6 +14,9 @@ public:
 
     [[nodiscard]]
     glm::mat4 ModelMatrix() const;
+
+    [[nodiscard]]
+    glm::mat4 InverseModelMatrix() const;
 
     void Rotate(const glm::mat4& mat)
         { rotationMatrix *= mat; }
@@ -24,8 +30,8 @@ public:
     void SetColor(const glm::vec4& newColor)
         { color = newColor; }
 
-    void SetScale(const glm::vec3& scale)
-        { this->scale = scale; }
+    void SetScale(const glm::vec3& newScale)
+        { scale = newScale; }
 
     void UpdateMesh(
         const std::vector<float>& vertices,
@@ -39,8 +45,10 @@ public:
     int MeshElements() const
         { return mesh.GetElementsCnt(); }
 
+    void Render(const PhongShader& shader) const;
+
 private:
-    Mesh mesh;
+    MeshWithNormals mesh;
     glm::vec4 color;
     glm::vec3 scale;
     glm::vec3 translation;

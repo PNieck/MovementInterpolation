@@ -4,6 +4,8 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
+#include <glm/gtx/euler_angles.hpp>
+
 
 MainController::MainController(GLFWwindow *window):
     optionsPanel(*this),
@@ -49,8 +51,20 @@ void MainController::Render()
 
     dockingSpace.Render();
     optionsPanel.Render();
-    visualizationQuat.Render();
-    visualizationEuler.Render();
+
+    const auto& startPos = GetStartingPosition();
+    const auto& endPos = GetEndingPosition();
+
+    Frame startFrame = { .position = startPos, .orientation = mat4_cast(GetStartingOrientationQuaternion()) };
+    Frame endFrame = { .position = endPos, .orientation = mat4_cast(GetEndingOrientationQuaternion()) };
+
+    visualizationQuat.Render(startFrame, endFrame, startFrame);
+
+    auto const& euler = GetStartingOrientationEulerAngles();
+    startFrame.orientation = glm::eulerAngleZ(euler.z) * glm::eulerAngleY(euler.y) * glm::eulerAngleX(euler.x);
+    endFrame.orientation = orientate4(GetEndingOrientationEulerAngles());
+
+    visualizationEuler.Render(startFrame, endFrame, startFrame);
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -92,6 +106,38 @@ void MainController::ScrollMoved(const int offset)
     auto newCamPos = camPos * val;
     visualizationQuat.SetCameraPosition(newCamPos);
     visualizationEuler.SetCameraPosition(newCamPos);
+}
+
+
+void MainController::SetStartingOrientation(const glm::quat &orientation) {
+    const glm::vec3 eulerAngles = glm::eulerAngles(orientation);
+
+    quaternionInterpolator.SetStartQuaternion(orientation);
+    eulerAnglesInterpolator.SetStartAngles(eulerAngles);
+}
+
+
+void MainController::SetStartingOrientation(const glm::vec3 &orientation) {
+    const auto quaternion = glm::quat(orientation);
+
+    eulerAnglesInterpolator.SetStartAngles(orientation);
+    quaternionInterpolator.SetStartQuaternion(quaternion);
+}
+
+
+void MainController::SetEndingOrientation(const glm::quat &orientation) {
+    const glm::vec3 eulerAngles = glm::eulerAngles(orientation);
+
+    quaternionInterpolator.SetEndQuaternion(orientation);
+    eulerAnglesInterpolator.SetEndAngles(eulerAngles);
+}
+
+
+void MainController::SetEndingOrientation(const glm::vec3 &orientation) {
+    const auto quaternion = glm::quat(orientation);
+
+    eulerAnglesInterpolator.SetEndAngles(orientation);
+    quaternionInterpolator.SetEndQuaternion(quaternion);
 }
 
 
