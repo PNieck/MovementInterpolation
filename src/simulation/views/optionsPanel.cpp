@@ -16,10 +16,14 @@ void OptionsPanel::Render() const {
 
     const bool simRuns = controller.SimulationIsRunning();
 
+    ImGui::PushItemWidth(-FLT_MIN);
+
     RenderStartStopButton(simRuns);
     RenderStartFrameOptions(simRuns);
     RenderEndFrameOptions(simRuns);
     RenderInterpolationOptions(simRuns);
+
+    ImGui::PopItemWidth();
 
     ImGui::End();
 }
