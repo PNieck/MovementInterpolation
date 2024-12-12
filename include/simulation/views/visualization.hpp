@@ -50,5 +50,5 @@ private:
     StdShader shader;
     PhongShader phongShader;
 
-    void RenderFrame(const Frame& frame, const glm::mat4& view, const glm::mat4& projection);
+    void RenderFrame(const Frame& frame);
 };

@@ -46,8 +46,14 @@ void Visualization::Render(const std::vector<Frame>& frames)
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    phongShader.Use();
+    phongShader.SetCameraPosition(camera.GetPosition());
+    phongShader.SetLightPosition(glm::vec3(10.0f, 10.f, 10.f));
+    phongShader.SetProjectionMatrix(projection);
+    phongShader.SetViewMatrix(view);
+
     for (const auto& frame : frames) {
-        RenderFrame(frame, view, projection);
+        RenderFrame(frame);
     }
 
     glEnable(GL_BLEND);
@@ -77,13 +83,7 @@ void Visualization::RotateCamera(const float x, const float y)
 }
 
 
-void Visualization::RenderFrame(const Frame& frame, const glm::mat4& view, const glm::mat4& projection) {
-    phongShader.Use();
-    phongShader.SetCameraPosition(camera.GetPosition());
-    phongShader.SetLightPosition(glm::vec3(10.0f, 10.f, 10.f));
-    phongShader.SetProjectionMatrix(projection);
-    phongShader.SetViewMatrix(view);
-
+void Visualization::RenderFrame(const Frame& frame) {
     arrow.SetPosition(frame.position);
     arrow.SetRotation(frame.orientation);
     arrow.SetColor(green);
