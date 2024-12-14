@@ -39,6 +39,7 @@ public:
     void SetViewportSize(const int width, const int height)
         { parameters.viewportWidth = width; parameters.viewportHeight = height; }
 
+    [[nodiscard]]
     const CameraParameters& GetParameters() const
         { return parameters; }
 
