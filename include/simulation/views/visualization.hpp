@@ -6,11 +6,10 @@
 #include "visualization/shaders/phongShader.hpp"
 #include "visualization/framebuffer.hpp"
 #include "visualization/frame.hpp"
+#include "visualization/renderObject.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
-
-#include "visualization/renderObject.hpp"
 
 
 class Visualization {
