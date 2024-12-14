@@ -15,6 +15,8 @@
 #include "../model/quaternionInterpolator.hpp"
 #include "../model/eulerAnglesInterpolator.hpp"
 
+#include "framesCapturer.hpp"
+
 
 class MainController {
 public:
@@ -87,10 +89,19 @@ public:
 
     [[nodiscard]]
     auto GetInterpolationTIme() const
-        { return interpolationInterval;; }
+        { return interpolationInterval; }
 
     void SetInterpolationTime(const float time)
         { interpolationInterval = std::chrono::duration<float>(time); }
+
+    void SetNumberOfIntermediateFramesToCapture(const int numberOfFrames)
+        { framesCapturer.SetNumberOfFramesToCapture(numberOfFrames); }
+
+    [[nodiscard]]
+    int GetIntermediateFramesToCapture() const
+        { return framesCapturer.GetNumberOfFrames(); }
+
+    void Reset();
 
 private:
     MouseState mouseState;
@@ -108,6 +119,8 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> startTime;
     std::chrono::time_point<std::chrono::steady_clock> actualTime;
 
+    FramesCapturer framesCapturer;
+
     bool simulationStarted = false;
 
     [[nodiscard]]
@@ -120,4 +133,8 @@ private:
 
     [[nodiscard]]
     std::optional<Frames> ActualFrame();
+
+    [[nodiscard]]
+    float InterpolationT() const
+        { return (actualTime - startTime) / interpolationInterval; }
 };

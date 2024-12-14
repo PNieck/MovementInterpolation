@@ -9,7 +9,8 @@ MainController::MainController(GLFWwindow *window):
     optionsPanel(*this),
     visualizationQuat(QuaternionVisualizationWindowName(), 1280, 720),
     visualizationEuler(EulerVisualizationWindowName(), 1280, 720),
-    interpolationInterval(1.f)
+    interpolationInterval(1.f),
+    framesCapturer(positionInterpolator, quaternionInterpolator, eulerAnglesInterpolator)
 {
     const auto glsl_version = "#version 410";
     IMGUI_CHECKVERSION();
@@ -40,6 +41,8 @@ void MainController::Update()
 {
     if (simulationStarted) {
         actualTime = std::chrono::high_resolution_clock::now();
+
+        framesCapturer.Update(InterpolationT());
     }
 }
 
@@ -48,6 +51,7 @@ void MainController::StartSimulation() {
     startTime = std::chrono::high_resolution_clock::now();
 
     simulationStarted = true;
+    framesCapturer.Clear();
 }
 
 
@@ -71,13 +75,22 @@ void MainController::Render()
     if (actFrames.has_value())
         frames.push_back(actFrames.value().QuatInter);
 
+    const auto& quaternionCaptured = framesCapturer.GetQuaternionInterpolationFrames();
+    frames.insert(frames.end(), quaternionCaptured.begin(), quaternionCaptured.end());
+
     visualizationQuat.Render(frames);
 
-    frames[0].SetOrientation(GetStartingOrientationEulerAngles());
-    frames[1].SetOrientation(GetEndingOrientationEulerAngles());
+    int i=0;
+    frames[i++].SetOrientation(GetStartingOrientationEulerAngles());
+    frames[i++].SetOrientation(GetEndingOrientationEulerAngles());
 
     if (actFrames.has_value())
-        frames[2] = actFrames.value().EulerInter;
+        frames[i++] = actFrames.value().EulerInter;
+
+    const auto& eulerCaptured = framesCapturer.GetEulerAnglesInterpolationFrames();
+    for (const auto& e: eulerCaptured) {
+        frames[i++] = e;
+    }
 
     visualizationEuler.Render(frames);
 
@@ -156,6 +169,19 @@ void MainController::SetEndingOrientation(const glm::vec3 &orientation) {
 }
 
 
+void MainController::Reset() {
+    constexpr auto zeroVector = glm::vec3(0.f);
+
+    SetStartingOrientation(zeroVector);
+    SetStartingPosition(zeroVector);
+
+    SetEndingOrientation(zeroVector);
+    SetEndingPosition(zeroVector);
+
+    framesCapturer.Clear();
+}
+
+
 bool MainController::WantToCaptureMouse() const
 {
     return !(visualizationEuler.IsMouseOverWindow() || visualizationQuat.IsMouseOverWindow());
@@ -166,7 +192,7 @@ std::optional<MainController::Frames> MainController::ActualFrame() {
     if (!SimulationIsRunning())
         return std::nullopt;
 
-    const float t = (std::chrono::high_resolution_clock::now() - startTime) / interpolationInterval;
+    const float t = InterpolationT();
     if (t > 1.f)
         StopSimulation();
 

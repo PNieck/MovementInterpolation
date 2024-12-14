@@ -49,13 +49,7 @@ void OptionsPanel::RenderStartStopButton(const bool simRuns) const {
 
     ImGui::BeginDisabled(simRuns);
     if (ImGui::Button("Reset")) {
-        constexpr auto zeroVector = glm::vec3(0.f);
-
-        controller.SetStartingOrientation(zeroVector);
-        controller.SetStartingPosition(zeroVector);
-
-        controller.SetEndingOrientation(zeroVector);
-        controller.SetEndingPosition(zeroVector);
+        controller.Reset();
     }
     ImGui::EndDisabled();
 }
@@ -152,8 +146,6 @@ void OptionsPanel::RenderEndFrameOptions(const bool simRuns) const {
 
 
 void OptionsPanel::RenderInterpolationOptions(const bool simRuns) const {
-    using sec = std::chrono::seconds;
-
     ImGui::SeparatorText("Interpolation options");
 
     ImGui::BeginDisabled(simRuns);
@@ -163,6 +155,13 @@ void OptionsPanel::RenderInterpolationOptions(const bool simRuns) const {
     ImGui::Text("Interpolation time (s)");
     if (ImGui::DragFloat("##InterpolationTime", &interpolationTime, 0.01f)) {
         controller.SetInterpolationTime(interpolationTime);
+    }
+
+    int intermediateCaptures = controller.GetIntermediateFramesToCapture();
+    ImGui::Text("Show intermediate frames");
+    if (ImGui::DragInt("##IntermediateFrames", &intermediateCaptures)) {
+        intermediateCaptures = std::max(0, intermediateCaptures);
+        controller.SetNumberOfIntermediateFramesToCapture(intermediateCaptures);
     }
 
     ImGui::EndDisabled();
