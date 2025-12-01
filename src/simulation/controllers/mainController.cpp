@@ -42,7 +42,7 @@ void MainController::Update()
     if (simulationStarted) {
         actualTime = std::chrono::high_resolution_clock::now();
 
-        framesCapturer.Update(InterpolationT());
+        framesCapturer.Update(InterpolationT(), quaternionInterpolationType);
     }
 }
 
@@ -199,7 +199,7 @@ std::optional<MainController::Frames> MainController::ActualFrame() {
     const auto pos = positionInterpolator.Interpolate(t);
 
     return Frames {
-        .QuatInter = Frame(pos, quaternionInterpolator.Interpolate(t)),
+        .QuatInter = Frame(pos, quaternionInterpolator.Interpolate(t, quaternionInterpolationType)),
         .EulerInter = Frame(pos, eulerAnglesInterpolator.Interpolate(t))
     };
 }

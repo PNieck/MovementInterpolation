@@ -23,7 +23,7 @@ public:
     int GetNumberOfFrames() const
         { return framesToCapture; }
 
-    void Update(float t);
+    void Update(float t, QuaternionInterpolator::Types interpolationType);
 
     [[nodiscard]]
     const std::vector<Frame>& GetQuaternionInterpolationFrames() const

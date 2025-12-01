@@ -164,5 +164,11 @@ void OptionsPanel::RenderInterpolationOptions(const bool simRuns) const {
         controller.SetNumberOfIntermediateFramesToCapture(intermediateCaptures);
     }
 
+    ImGui::Text("Quaternion interpolation type");
+
+    ImGui::RadioButton("Linear", reinterpret_cast<int *>(&controller.quaternionInterpolationType), 0);
+    ImGui::SameLine();
+    ImGui::RadioButton("Spherical", reinterpret_cast<int *>(&controller.quaternionInterpolationType), 1);
+
     ImGui::EndDisabled();
 }

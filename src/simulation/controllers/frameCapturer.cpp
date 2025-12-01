@@ -16,13 +16,13 @@ void FramesCapturer::SetNumberOfFramesToCapture(const int numberOfFrames) {
 }
 
 
-void FramesCapturer::Update(const float t) {
+void FramesCapturer::Update(const float t, QuaternionInterpolator::Types interpolationType) {
     while (!remainingTimesToCapture.empty() && remainingTimesToCapture.front() < t) {
         const float interpolationT = remainingTimesToCapture.front();
         remainingTimesToCapture.pop();
 
         auto pos = positionInterpolator.Interpolate(interpolationT);
-        quaternionFrames.emplace_back(pos, quaternionInterpolator.Interpolate(interpolationT));
+        quaternionFrames.emplace_back(pos, quaternionInterpolator.Interpolate(interpolationT, interpolationType));
         eulerFrames.emplace_back(pos, eulerAnglesInterpolator.Interpolate(interpolationT));
     }
 }

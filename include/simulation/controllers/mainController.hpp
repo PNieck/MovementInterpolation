@@ -103,6 +103,8 @@ public:
 
     void Reset();
 
+    QuaternionInterpolator::Types quaternionInterpolationType = QuaternionInterpolator::Types::Linear;
+
 private:
     MouseState mouseState;
 
@@ -116,8 +118,8 @@ private:
     EulerAnglesInterpolator eulerAnglesInterpolator;
 
     std::chrono::duration<float> interpolationInterval;
-    std::chrono::time_point<std::chrono::steady_clock> startTime;
-    std::chrono::time_point<std::chrono::steady_clock> actualTime;
+    std::chrono::time_point<std::chrono::system_clock> startTime;
+    std::chrono::time_point<std::chrono::system_clock> actualTime;
 
     FramesCapturer framesCapturer;
 
