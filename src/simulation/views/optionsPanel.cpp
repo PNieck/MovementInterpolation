@@ -3,6 +3,7 @@
 #include <imgui.h>
 
 #include "simulation/controllers/mainController.hpp"
+#include "simulation/views/optionsPanel/angle.hpp"
 
 
 OptionsPanel::OptionsPanel(MainController &controller):
@@ -19,8 +20,14 @@ void OptionsPanel::Render() const {
     ImGui::PushItemWidth(-FLT_MIN);
 
     RenderStartStopButton(simRuns);
+    ImGui::Dummy(ImVec2(0.0f, 15.0f));
+
     RenderStartFrameOptions(simRuns);
+    ImGui::Dummy(ImVec2(0.0f, 15.0f));
+
     RenderEndFrameOptions(simRuns);
+    ImGui::Dummy(ImVec2(0.0f, 15.0f));
+
     RenderInterpolationOptions(simRuns);
 
     ImGui::PopItemWidth();
@@ -71,14 +78,18 @@ void OptionsPanel::RenderStartFrameOptions(const bool simRuns) const {
     }
 
     const glm::vec3& eulerAngles = controller.GetStartingOrientationEulerAngles();
-    coordinates[0] = eulerAngles.x;
-    coordinates[1] = eulerAngles.y;
-    coordinates[2] = eulerAngles.z;
+    coordinates[0] = Angle::FromRadians(eulerAngles.x).ToDegrees();
+    coordinates[1] = Angle::FromRadians(eulerAngles.y).ToDegrees();
+    coordinates[2] = Angle::FromRadians(eulerAngles.z).ToDegrees();
 
     ImGui::Text("Euler angles (XYZ)");
-    if (ImGui::DragFloat3("##StartEulerAngles", coordinates, 0.01f)) {
+    if (ImGui::DragFloat3("##StartEulerAngles", coordinates, 1.f)) {
         controller.SetStartingOrientation(
-            glm::vec3(coordinates[0], coordinates[1], coordinates[2])
+            glm::vec3(
+                Angle::FromDegrees(coordinates[0]).ToRadians(),
+                Angle::FromDegrees(coordinates[1]).ToRadians(),
+                Angle::FromDegrees(coordinates[2]).ToRadians()
+            )
         );
     }
 
@@ -116,14 +127,18 @@ void OptionsPanel::RenderEndFrameOptions(const bool simRuns) const {
     }
 
     const glm::vec3& eulerAngles = controller.GetEndingOrientationEulerAngles();
-    coordinates[0] = eulerAngles.x;
-    coordinates[1] = eulerAngles.y;
-    coordinates[2] = eulerAngles.z;
+    coordinates[0] = Angle::FromRadians(eulerAngles.x).ToDegrees();
+    coordinates[1] = Angle::FromRadians(eulerAngles.y).ToDegrees();
+    coordinates[2] = Angle::FromRadians(eulerAngles.z).ToDegrees();
 
     ImGui::Text("Euler angles (XYZ)");
-    if (ImGui::DragFloat3("##EndEulerAngles", coordinates, 0.01f)) {
+    if (ImGui::DragFloat3("##EndEulerAngles", coordinates, 1.f)) {
         controller.SetEndingOrientation(
-            glm::vec3(coordinates[0], coordinates[1], coordinates[2])
+            glm::vec3(
+                Angle::FromDegrees(coordinates[0]).ToRadians(),
+                Angle::FromDegrees(coordinates[1]).ToRadians(),
+                Angle::FromDegrees(coordinates[2]).ToRadians()
+            )
         );
     }
 
