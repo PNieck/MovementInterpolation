@@ -26,12 +26,15 @@ public:
         { return endAngles; }
 
     [[nodiscard]]
-    glm::vec3 Interpolate(float t) const {
-        t = std::clamp(t, 0.0f, 1.0f);
-        return startAngles + (endAngles - startAngles) * t;
-    }
+    glm::vec3 Interpolate(float t) const;
 
 private:
     glm::vec3 startAngles;
     glm::vec3 endAngles;
+
+    [[nodiscard]]
+    glm::vec3 WrapAngle(const glm::vec3& angles) const;
+
+    [[nodiscard]]
+    float WrapSingleAngle(float angle) const;
 };
