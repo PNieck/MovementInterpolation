@@ -27,17 +27,17 @@ glm::quat QuaternionInterpolator::InterpolateLinearly(float t) const {
 
 glm::quat QuaternionInterpolator::InterpolateSpherically(float t) const
 {
-    if (startQuaternion == endQuaternion)
-        return startQuaternion;
-
-    t = std::clamp(t, 0.0f, 1.0f);
-
     glm::quat adjustedEnd = endQuaternion;
     float dot = glm::dot(startQuaternion, adjustedEnd);
     if (dot < 0.f) {
         adjustedEnd = -adjustedEnd;
         dot = -dot;
     }
+
+    if (startQuaternion == adjustedEnd)
+        return startQuaternion;
+
+    t = std::clamp(t, 0.0f, 1.0f);
 
     const float omega = static_cast<float>(acos(dot));
     const float invSinOmega = 1.0f / static_cast<float>(sin(omega));
