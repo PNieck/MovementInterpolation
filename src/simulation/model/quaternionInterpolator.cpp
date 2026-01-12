@@ -27,6 +27,9 @@ glm::quat QuaternionInterpolator::InterpolateLinearly(float t) const {
 
 glm::quat QuaternionInterpolator::InterpolateSpherically(float t) const
 {
+    if (startQuaternion == endQuaternion)
+        return startQuaternion;
+
     t = std::clamp(t, 0.0f, 1.0f);
 
     glm::quat adjustedEnd = endQuaternion;
